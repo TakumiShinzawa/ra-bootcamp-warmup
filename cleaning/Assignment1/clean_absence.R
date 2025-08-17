@@ -1,12 +1,12 @@
-pacman::p_load(tidyverse)
+pacman::p_load(tidyverse, sjlabelled)
 
 #データ読み込み-----------------------------------------------------------------
+
 list_df_school_absence_original <- 
   readRDS("data/original/list_df_school_absence_original.rds")
 
 df_student_num_original <- 
   readRDS("data/original/df_student_num_original.rds")
-
 
 #blank列を削除 + データ型変換 + 年追加-----------------------------------------
 
@@ -34,14 +34,16 @@ df_school_absence_cleaned <-
   )
 
 #生徒数データと結合-------------------------------------------------------------
-panel_df <-
-  df_student_num_original|> 
-  left_join(df_school_absence_cleaned, by = NULL)
 
-#不登校割合の計算と追加---------------------------------------------------------
+df_school_absence <-
+  df_student_num_original|> 
+  left_join(df_school_absence_cleaned,
+            by = c("prefecture", "year"))
+
+#不登校割合の計算と追加--------------------------------------------------------
 
 df_school_absence <- 
-  panel_df |>
+  df_school_absence |>
   mutate(absence_rate = (n_absence / n_student) * 100) |>
   var_labels(absence_rate = "不登校割合")
 
